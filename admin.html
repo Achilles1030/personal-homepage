@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>访客反馈后台 · Achilles</title>
+  <style>
+    :root { --ink:#101210; --panel:#181b17; --paper:#f0efe8; --acid:#d7ff45; --muted:#92988e; --line:rgba(240,239,232,.16); --danger:#ff6b35; --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--paper); background:var(--ink); font-family:var(--sans); }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    .shell { width:min(1120px,calc(100% - 36px)); margin:auto; }
+    header { border-bottom:1px solid var(--line); }
+    .topbar { min-height:78px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .brand { font-weight:900; letter-spacing:-.02em; }
+    .brand::before { content:""; display:inline-block; width:12px; height:12px; margin-right:10px; border-radius:50%; background:var(--acid); box-shadow:0 0 20px rgba(215,255,69,.5); }
+    .link-button,.ghost-button { border:1px solid var(--line); padding:10px 14px; color:var(--paper); background:transparent; text-decoration:none; }
+    main { padding:64px 0 90px; }
+    .hidden { display:none !important; }
+    .login-card { width:min(470px,100%); margin:6vh auto 0; padding:34px; border:1px solid var(--line); background:var(--panel); box-shadow:14px 14px 0 var(--acid); }
+    .eyebrow { margin-bottom:12px; color:var(--acid); font-size:11px; font-weight:900; letter-spacing:.18em; }
+    h1,h2,p { margin-top:0; }
+    h1 { margin-bottom:8px; font-size:clamp(36px,7vw,62px); line-height:1; letter-spacing:-.05em; }
+    .hint { margin-bottom:28px; color:var(--muted); line-height:1.65; }
+    .field { display:grid; gap:8px; margin-top:16px; }
+    .field label { color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.13em; }
+    .field input,.search { width:100%; border:1px solid #383d36; padding:13px 14px; color:var(--paper); background:var(--ink); outline:none; }
+    .field input:focus,.search:focus { border-color:var(--acid); box-shadow:0 0 0 3px rgba(215,255,69,.12); }
+    .login-actions { display:flex; gap:10px; margin-top:22px; flex-wrap:wrap; }
+    .primary { border:0; padding:13px 18px; color:var(--ink); background:var(--acid); font-weight:900; }
+    .secondary { border:1px solid var(--line); padding:12px 17px; color:var(--paper); background:transparent; font-weight:800; }
+    .status { min-height:22px; margin:18px 0 0; color:var(--muted); font-size:13px; }
+    .status.error { color:#ff9873; }
+    .status.success { color:var(--acid); }
+    .dashboard-head { display:flex; align-items:end; justify-content:space-between; gap:24px; margin-bottom:30px; }
+    .dashboard-head h1 { margin:0; }
+    .dashboard-actions { display:flex; gap:10px; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+    .stat { padding:22px; border:1px solid var(--line); background:var(--panel); }
+    .stat strong { display:block; color:var(--acid); font-size:36px; line-height:1; }
+    .stat span { display:block; margin-top:8px; color:var(--muted); font-size:12px; }
+    .toolbar { display:grid; grid-template-columns:1fr auto; gap:12px; margin-bottom:18px; }
+    .filter { border:1px solid var(--line); padding:0 16px; color:var(--paper); background:var(--panel); }
+    .feedback-list { display:grid; gap:14px; }
+    .feedback-card { padding:24px; border:1px solid var(--line); background:var(--panel); }
+    .feedback-card.unread { border-left:5px solid var(--acid); }
+    .feedback-meta { display:flex; align-items:start; justify-content:space-between; gap:18px; }
+    .feedback-meta strong { font-size:17px; }
+    .feedback-email,.feedback-time { display:block; margin-top:5px; color:var(--muted); font-size:12px; }
+    .feedback-message { margin:22px 0; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.7; }
+    .card-actions { display:flex; gap:9px; flex-wrap:wrap; }
+    .small-button { border:1px solid var(--line); padding:8px 11px; color:var(--paper); background:transparent; font-size:12px; }
+    .small-button:hover { border-color:var(--acid); color:var(--acid); }
+    .small-button.danger:hover { border-color:var(--danger); color:var(--danger); }
+    .empty { padding:50px 20px; border:1px dashed var(--line); color:var(--muted); text-align:center; }
+    @media (max-width:700px) { main{padding-top:38px}.login-card{padding:25px;box-shadow:8px 8px 0 var(--acid)}.dashboard-head{align-items:start;flex-direction:column}.stats{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.filter{min-height:44px}.feedback-meta{flex-direction:column}.topbar{align-items:flex-start;padding:20px 0;flex-direction:column} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell topbar">
+      <div class="brand">AX / FEEDBACK ADMIN</div>
+      <a class="link-button" href="./index.html">返回主页 ↗</a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="login-card" id="login-view">
+      <div class="eyebrow">PRIVATE ACCESS</div>
+      <h1>管理员登录</h1>
+      <p class="hint">仅授权邮箱可以读取访客反馈。登录身份会由数据库权限再次验证。</p>
+      <form id="login-form">
+        <div class="field"><label for="admin-email">管理员邮箱</label><input id="admin-email" type="email" autocomplete="username" required /></div>
+        <div class="field"><label for="admin-password">密码</label><input id="admin-password" type="password" minlength="10" autocomplete="current-password" required /></div>
+        <div class="login-actions">
+          <button class="primary" type="submit">登录后台</button>
+        </div>
+        <p class="status" id="login-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="hidden" id="dashboard-view">
+      <div class="dashboard-head">
+        <div><div class="eyebrow">PRIVATE DASHBOARD</div><h1>访客反馈</h1></div>
+        <div class="dashboard-actions"><button class="ghost-button" id="refresh-button" type="button">刷新</button><button class="ghost-button" id="logout-button" type="button">退出</button></div>
+      </div>
+      <div class="stats"><div class="stat"><strong id="total-count">0</strong><span>全部反馈</span></div><div class="stat"><strong id="unread-count">0</strong><span>未读反馈</span></div><div class="stat"><strong id="today-count">0</strong><span>今日新增</span></div></div>
+      <div class="toolbar"><input class="search" id="search-input" type="search" placeholder="搜索昵称、邮箱或反馈内容" /><button class="filter" id="filter-button" type="button" data-unread="false">仅看未读：关</button></div>
+      <p class="status" id="dashboard-status" role="status" aria-live="polite"></p>
+      <div class="feedback-list" id="feedback-list"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.0/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
+  <script>
+    const SUPABASE_URL = 'https://ivhdzmlcxfniosqyprme.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_rup0RoeiP6hzqMLMyEFf9w_xkzxPntt';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    const loginView = document.querySelector('#login-view');
+    const dashboardView = document.querySelector('#dashboard-view');
+    const loginForm = document.querySelector('#login-form');
+    const emailInput = document.querySelector('#admin-email');
+    const passwordInput = document.querySelector('#admin-password');
+    const loginStatus = document.querySelector('#login-status');
+    const dashboardStatus = document.querySelector('#dashboard-status');
+    const list = document.querySelector('#feedback-list');
+    const searchInput = document.querySelector('#search-input');
+    const filterButton = document.querySelector('#filter-button');
+    let feedbackRows = [];
+    let unreadOnly = false;
+
+    const setStatus = (element, message, type = '') => { element.textContent = message; element.className = `status ${type}`.trim(); };
+    const showLogin = () => { loginView.classList.remove('hidden'); dashboardView.classList.add('hidden'); };
+    const showDashboard = () => { loginView.classList.add('hidden'); dashboardView.classList.remove('hidden'); };
+
+    loginForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      setStatus(loginStatus, '正在验证…');
+      const email = emailInput.value.trim().toLowerCase();
+      const { data, error } = await client.auth.signInWithPassword({ email, password: passwordInput.value });
+      if (error) return setStatus(loginStatus, error.message, 'error');
+      passwordInput.value = '';
+      showDashboard();
+      await loadFeedback();
+    });
+
+    async function loadFeedback() {
+      setStatus(dashboardStatus, '正在加载…');
+      const { data, error } = await client.from('feedback').select('id,nickname,email,message,is_read,created_at').order('created_at', { ascending: false }).limit(1000);
+      if (error) {
+        await client.auth.signOut();
+        showLogin();
+        setStatus(loginStatus, '该账号没有管理员权限。', 'error');
+        return;
+      }
+      feedbackRows = data || [];
+      updateStats();
+      renderFeedback();
+      setStatus(dashboardStatus, '');
+    }
+
+    function updateStats() {
+      const today = new Date(); today.setHours(0,0,0,0);
+      document.querySelector('#total-count').textContent = feedbackRows.length;
+      document.querySelector('#unread-count').textContent = feedbackRows.filter(row => !row.is_read).length;
+      document.querySelector('#today-count').textContent = feedbackRows.filter(row => new Date(row.created_at) >= today).length;
+    }
+
+    function renderFeedback() {
+      list.replaceChildren();
+      const query = searchInput.value.trim().toLowerCase();
+      const rows = feedbackRows.filter(row => {
+        if (unreadOnly && row.is_read) return false;
+        const haystack = [row.nickname, row.email, row.message].filter(Boolean).join(' ').toLowerCase();
+        return !query || haystack.includes(query);
+      });
+      if (!rows.length) { const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = '没有符合条件的反馈。'; list.appendChild(empty); return; }
+
+      rows.forEach(row => {
+        const card = document.createElement('article'); card.className = `feedback-card${row.is_read ? '' : ' unread'}`;
+        const meta = document.createElement('div'); meta.className = 'feedback-meta';
+        const identity = document.createElement('div');
+        const name = document.createElement('strong'); name.textContent = row.nickname || '匿名访客';
+        const email = document.createElement('span'); email.className = 'feedback-email'; email.textContent = row.email || '未留下邮箱';
+        identity.append(name, email);
+        const time = document.createElement('time'); time.className = 'feedback-time'; time.dateTime = row.created_at; time.textContent = new Intl.DateTimeFormat('zh-CN', { dateStyle:'medium', timeStyle:'short' }).format(new Date(row.created_at));
+        meta.append(identity, time);
+        const message = document.createElement('p'); message.className = 'feedback-message'; message.textContent = row.message;
+        const actions = document.createElement('div'); actions.className = 'card-actions';
+        const readButton = document.createElement('button'); readButton.className = 'small-button'; readButton.type = 'button'; readButton.textContent = row.is_read ? '标为未读' : '标为已读'; readButton.addEventListener('click', () => toggleRead(row));
+        actions.appendChild(readButton);
+        if (row.email) { const copyButton = document.createElement('button'); copyButton.className = 'small-button'; copyButton.type = 'button'; copyButton.textContent = '复制邮箱'; copyButton.addEventListener('click', async () => { await navigator.clipboard.writeText(row.email); copyButton.textContent = '已复制'; }); actions.appendChild(copyButton); }
+        const deleteButton = document.createElement('button'); deleteButton.className = 'small-button danger'; deleteButton.type = 'button'; deleteButton.textContent = '删除'; deleteButton.addEventListener('click', () => deleteFeedback(row)); actions.appendChild(deleteButton);
+        card.append(meta, message, actions); list.appendChild(card);
+      });
+    }
+
+    async function toggleRead(row) {
+      const { error } = await client.from('feedback').update({ is_read: !row.is_read }).eq('id', row.id);
+      if (error) return setStatus(dashboardStatus, error.message, 'error');
+      row.is_read = !row.is_read; updateStats(); renderFeedback();
+    }
+
+    async function deleteFeedback(row) {
+      if (!confirm('确定永久删除这条反馈吗？')) return;
+      const { error } = await client.from('feedback').delete().eq('id', row.id);
+      if (error) return setStatus(dashboardStatus, error.message, 'error');
+      feedbackRows = feedbackRows.filter(item => item.id !== row.id); updateStats(); renderFeedback();
+    }
+
+    searchInput.addEventListener('input', renderFeedback);
+    filterButton.addEventListener('click', () => { unreadOnly = !unreadOnly; filterButton.dataset.unread = String(unreadOnly); filterButton.textContent = `仅看未读：${unreadOnly ? '开' : '关'}`; renderFeedback(); });
+    document.querySelector('#refresh-button').addEventListener('click', loadFeedback);
+    document.querySelector('#logout-button').addEventListener('click', async () => { await client.auth.signOut(); feedbackRows = []; showLogin(); });
+
+    (async () => {
+      const { data } = await client.auth.getUser();
+      if (data.user) { showDashboard(); await loadFeedback(); }
+      else showLogin();
+    })();
+  </script>
+</body>
+</html>
