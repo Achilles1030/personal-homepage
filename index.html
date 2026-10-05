@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="宋筱潇 Achilles 的个人主页——天津大学深圳未来技术学院学生，篮球与音乐爱好者。" />
   <title>宋筱潇 · Achilles</title>
+  
   <style>
+    .music-player { position: fixed; right: 24px; bottom: 24px; z-index: 60; display: flex; align-items: center; gap: 12px; width: min(316px, calc(100vw - 48px)); padding: 12px 14px; border: 1px solid rgba(240,239,232,.22); border-radius: 14px; background: rgba(16,18,16,.82); box-shadow: 0 16px 38px rgba(0,0,0,.26); backdrop-filter: blur(16px); }
+.music-player__toggle { width: 34px; height: 34px; flex: 0 0 auto; border: 0; border-radius: 50%; background: var(--acid); color: var(--ink); font-size: 13px; font-weight: 900; cursor: pointer; }
+.music-player__track { min-width: 0; flex: 1; }
+.music-player__name { display: block; margin-bottom: 7px; color: #f0efe8; font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+.music-player__progress { width: 100%; height: 3px; margin: 0; appearance: none; accent-color: var(--acid); cursor: pointer; }
     :root {
       --ink: #101210;
       --paper: #f0efe8;
@@ -561,6 +567,34 @@
     </div>
   </footer>
 
+  const music = document.querySelector('#background-music');
+const musicToggle = document.querySelector('#music-toggle');
+const musicProgress = document.querySelector('#music-progress');
+
+const updateMusicButton = () => {
+  musicToggle.textContent = music.paused ? '▶' : 'Ⅱ';
+  musicToggle.setAttribute('aria-label', music.paused ? '播放背景音乐' : '暂停背景音乐');
+};
+
+const playMusic = () => music.play().catch(() => updateMusicButton());
+
+musicToggle.addEventListener('click', () => music.paused ? playMusic() : music.pause());
+music.addEventListener('play', updateMusicButton);
+music.addEventListener('pause', updateMusicButton);
+
+music.addEventListener('timeupdate', () => {
+  if (music.duration > 0) {
+    musicProgress.value = (music.currentTime / music.duration) * 100;
+  }
+});
+
+musicProgress.addEventListener('input', () => {
+  if (music.duration > 0) {
+    music.currentTime = music.duration * (musicProgress.value / 100);
+  }
+});
+
+playMusic();
   <script>
     const nav = document.querySelector('#nav');
     window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 30), { passive: true });
