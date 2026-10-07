@@ -788,9 +788,15 @@
       feedbackButton.disabled = true; feedbackButton.textContent = '提交中…'; feedbackStatus.textContent = '';
       try {
         const response = await fetch('https://ivhdzmlcxfniosqyprme.supabase.co/functions/v1/submit-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname, message, email: '', website: '' }) });
-        if (!response.ok) throw new Error('submit failed');
+        const result = await response.json().catch(() => ({}));
+if (!response.ok) throw new Error(result.error || `请求失败（${response.status}）`);
         feedbackForm.reset(); feedbackStatus.dataset.state = 'success'; feedbackStatus.textContent = '感谢你的反馈，已成功送达。';
-      } catch { feedbackStatus.dataset.state = 'error'; feedbackStatus.textContent = '提交失败，请稍后再试。'; }
+      } catch (error) {
+  feedbackStatus.dataset.state = 'error';
+  feedbackStatus.textContent = error instanceof Error
+    ? error.message
+    : '提交失败，请稍后再试。';
+}
       finally { feedbackButton.disabled = false; feedbackButton.textContent = '提交反馈 ↗'; }
     });
 
