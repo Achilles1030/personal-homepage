@@ -787,7 +787,7 @@
       if (!nickname || !message) { feedbackStatus.dataset.state = 'error'; feedbackStatus.textContent = '请填写昵称和反馈内容。'; return; }
       feedbackButton.disabled = true; feedbackButton.textContent = '提交中…'; feedbackStatus.textContent = '';
       try {
-        const response = await fetch('https://jkfsfjtixnfkgpdsgxnl.supabase.co', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname, message, email: '', website: '' }) });
+        const response = await fetch('https://jkfsfjtixnfkgpdsgxnl.supabase.co/functions/v1/submit-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname, message, email: '', website: '' }) });
         const result = await response.json().catch(() => ({}));
 if (!response.ok) throw new Error(result.error || `请求失败（${response.status}）`);
         feedbackForm.reset(); feedbackStatus.dataset.state = 'success'; feedbackStatus.textContent = '感谢你的反馈，已成功送达。';
