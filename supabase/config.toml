@@ -1,2 +1,5 @@
 [functions.submit-feedback]
 verify_jwt = false
+
+[functions.chat-achilles]
+verify_jwt = false
